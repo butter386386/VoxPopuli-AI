@@ -47,7 +47,7 @@ st.markdown("""
         border-right: 1px solid #334155;
     }
     </style>
-""", unsafe_allowed_html=True)
+""", unsafe_allow_html=True)
 
 # ==========================================
 # 2. CORE NLP UTILITIES & DATA PROCESSING

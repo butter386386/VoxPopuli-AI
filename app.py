@@ -151,69 +151,79 @@ elif page == "🔍 Single Review Tester":
 # ==========================================
 elif page == "📂 Bulk Data Pipeline":
     st.title("Bulk Processing File Pipeline")
-    st.write("Upload extensive feedback datasets to unlock aggregated intelligence insights.")
+    st.write("Upload extensive feedback datasets or use our quick test sample to unlock insights.")
     
-    uploaded_file = st.file_uploader("Upload your app reviews dataset (Accepts standard structured .CSV or .PDF)", type=["csv", "pdf"])
+    # 1. Provide an option to use a pre-loaded sample dataset instantly
+    use_sample = st.checkbox("💡 Click here to instantly load a sample professor testing dataset")
     
-    if uploaded_file is not None:
-        if uploaded_file.name.endswith('.pdf'):
-            st.warning("⚠️ PDF detected! Advanced un-structured PDF parsing requires background text extraction. Please use a standard CSV structure or convert your rows to a spreadsheet for this dashboard pipeline version.")
-        else:
-            try:
-                df = pd.read_csv(uploaded_file)
-                st.success("File uploaded successfully!")
-                
-                text_columns = [col for col in df.columns if df[col].astype(str).str.len().mean() > 5]
-                if not text_columns:
-                    text_columns = list(df.columns)
-                    
-                selected_col = st.selectbox("Select the specific column containing the Review Text:", text_columns)
-                
-                if st.button("Run Bulk Pipeline Analysis"):
-                    with st.spinner("Processing NLP Tokenization Pipeline..."):
-                        df['Inferred Sentiment'] = df[selected_col].astype(str).apply(analyze_sentiment)
-                        
-                    st.subheader("📊 Analytical Dashboard Summary")
-                    
-                    total_reviews = len(df)
-                    pos_pct = (df['Inferred Sentiment'] == 'Positive').sum() / total_reviews
-                    neg_pct = (df['Inferred Sentiment'] == 'Negative').sum() / total_reviews
-                    
-                    m1, m2, m3 = st.columns(3)
-                    m1.metric("Total Records Analyzed", total_reviews)
-                    m2.metric("Positive Sentiment Ratio", f"{pos_pct*100:.1f}%")
-                    m3.metric("Negative Risk Profile", f"{neg_pct*100:.1f}%")
-                    
-                    st.markdown("### Visual Insights Distributions")
-                    chart_col1, chart_col2 = st.columns(2)
-                    
-                    with chart_col1:
-                        st.write("**Sentiment Balance (Distribution Ratio)**")
-                        sentiment_counts = df['Inferred Sentiment'].value_counts()
-                        st.bar_chart(sentiment_counts, color="#2dd4bf")
-                        
-                    with chart_col2:
-                        st.write("**High-Frequency Review Keywords**")
-                        frequent_words = extract_frequent_words(df[selected_col], top_n=8)
-                        if frequent_words:
-                            words_df = pd.DataFrame(frequent_words, columns=['Word', 'Occurrences']).set_index('Word')
-                            st.bar_chart(words_df, color="#0d9488")
-                        else:
-                            st.info("Insufficient textual depth to build keywords map.")
-                    
-                    st.markdown("### Processed Pipeline Output Stream")
-                    st.dataframe(df[[selected_col, 'Inferred Sentiment']], use_container_width=True)
-                    
-            except Exception as e:
-                st.error(f"Error parsing data file: {e}. Please ensure it is a valid format structure.")
-    else:
-        st.info("💡 Portfolio Evaluator Quick Test: Don't have a file ready? Click below to download a test file.")
-        sample_data = pd.DataFrame({
-            "Review_Text": [
-                "This app is excellent, it runs super smooth!",
-                "Terrible UI, it crashes every single time I load the home view.",
-                "Okay experience but the text rendering is slow.",
-                "I love this application, best tool on the store.",
-                "Completely broken update. Horrible."
+    uploaded_file = st.file_uploader("Or, upload your own app reviews dataset (Accepts standard .CSV format)", type=["csv"])
+    
+    df = None
+    
+    # Load data based on professor's choice
+    if use_sample:
+        sample_dict = {
+            "Review": [
+                "The new interface is so smooth and the dark mode looks absolutely beautiful!",
+                "The app keeps crashing every time I try to open the login page. Please fix this bug.",
+                "The app was updated yesterday.",
+                "I love how fast this app loads. It saves me so much time every day.",
+                "Too many annoying ads pop up every two seconds. This is a terrible user experience.",
+                "It works on my Samsung phone, but I haven't tried it on my tablet yet."
             ]
-        })
+        }
+        df = pd.DataFrame(sample_dict)
+        st.success("Loaded pre-built testing dataset successfully!")
+    elif uploaded_file is not None:
+        try:
+            df = pd.read_csv(uploaded_file)
+            st.success("File uploaded successfully!")
+        except Exception as e:
+            st.error(f"Error parsing data file: {e}. Please ensure it is a valid format structure.")
+
+    # Process and display the data if available
+    if df is not None:
+        # Help user find text columns automatically
+        text_columns = [col for col in df.columns if df[col].astype(str).str.len().mean() > 5]
+        if not text_columns:
+            text_columns = list(df.columns)
+            
+        selected_col = st.selectbox("Select the specific column containing the Review Text:", text_columns)
+        
+        if st.button("Run Bulk Pipeline Analysis"):
+            with st.spinner("Processing NLP Tokenization Pipeline..."):
+                df['Inferred Sentiment'] = df[selected_col].astype(str).apply(analyze_sentiment)
+                
+            st.subheader("📊 Analytical Dashboard Summary")
+            
+            total_reviews = len(df)
+            pos_pct = (df['Inferred Sentiment'] == 'Positive').sum() / total_reviews
+            neg_pct = (df['Inferred Sentiment'] == 'Negative').sum() / total_reviews
+            
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Total Records Analyzed", total_reviews)
+            m2.metric("Positive Sentiment Ratio", f"{pos_pct*100:.1f}%")
+            m3.metric("Negative Risk Profile", f"{neg_pct*100:.1f}%")
+            
+            st.markdown("### Visual Insights Distributions")
+            chart_col1, chart_col2 = st.columns(2)
+            
+            with chart_col1:
+                st.write("**Sentiment Balance (Distribution Ratio)**")
+                sentiment_counts = df['Inferred Sentiment'].value_counts()
+                st.bar_chart(sentiment_counts, color="#2dd4bf")
+                
+            with chart_col2:
+                st.write("**High-Frequency Review Keywords**")
+                frequent_words = extract_frequent_words(df[selected_col], top_n=8)
+                if frequent_words:
+                    words_df = pd.DataFrame(frequent_words, columns=['Word', 'Occurrences']).set_index('Word')
+                    st.bar_chart(words_df, color="#0d9488")
+                else:
+                    st.info("Insufficient textual depth to build keywords map.")
+            
+            st.markdown("### Processed Pipeline Output Stream")
+            st.dataframe(df[[selected_col, 'Inferred Sentiment']], use_container_width=True)
+            
+    else:
+        st.info("💡 Pro-Tip for Evaluation: You can either check the box above to use our quick test dataset, or upload your own structured table.")

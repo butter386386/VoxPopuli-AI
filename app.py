@@ -151,17 +151,17 @@ elif page == "🔍 Single Review Tester":
 # ==========================================
 elif page == "📂 Bulk Data Pipeline":
     st.title("Bulk Processing File Pipeline")
-    st.write("Upload extensive feedback datasets or use our quick test sample to unlock insights.")
-    
-    # 1. Provide an option to use a pre-loaded sample dataset instantly
-    use_sample = st.checkbox("💡 Click here to instantly load a sample professor testing dataset")
-    
-    uploaded_file = st.file_uploader("Or, upload your own app reviews dataset (Accepts standard .CSV format)", type=["csv"])
+    st.write("Analyze custom datasets or load a sample dataset instantly.")
     
     df = None
     
-    # Load data based on professor's choice
-    if use_sample:
+    # Use standard Streamlit interactive choice container
+    data_source = st.radio(
+        "Choose Data Submission Method:",
+        ["⚡ Use Pre-Loaded Professor Sample Dataset", "📤 Upload Custom CSV File"]
+    )
+    
+    if data_source == "⚡ Use Pre-Loaded Professor Sample Dataset":
         sample_dict = {
             "Review": [
                 "The new interface is so smooth and the dark mode looks absolutely beautiful!",
@@ -173,22 +173,22 @@ elif page == "📂 Bulk Data Pipeline":
             ]
         }
         df = pd.DataFrame(sample_dict)
-        st.success("Loaded pre-built testing dataset successfully!")
-    elif uploaded_file is not None:
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.success("File uploaded successfully!")
-        except Exception as e:
-            st.error(f"Error parsing data file: {e}. Please ensure it is a valid format structure.")
+    else:
+        uploaded_file = st.file_uploader("Upload your app reviews dataset (Accepts standard .CSV formats)", type=["csv"])
+        if uploaded_file is not None:
+            try:
+                df = pd.read_csv(uploaded_file)
+                st.success("File uploaded successfully!")
+            except Exception as e:
+                st.error(f"Error parsing uploaded file: {e}")
 
-    # Process and display the data if available
+    # Process block triggers smoothly as soon as a source is active
     if df is not None:
-        # Help user find text columns automatically
         text_columns = [col for col in df.columns if df[col].astype(str).str.len().mean() > 5]
         if not text_columns:
             text_columns = list(df.columns)
             
-        selected_col = st.selectbox("Select the specific column containing the Review Text:", text_columns)
+        selected_col = st.selectbox("Select the column containing the Review Text:", text_columns)
         
         if st.button("Run Bulk Pipeline Analysis"):
             with st.spinner("Processing NLP Tokenization Pipeline..."):
@@ -220,10 +220,7 @@ elif page == "📂 Bulk Data Pipeline":
                     words_df = pd.DataFrame(frequent_words, columns=['Word', 'Occurrences']).set_index('Word')
                     st.bar_chart(words_df, color="#0d9488")
                 else:
-                    st.info("Insufficient textual depth to build keywords map.")
+                    st.info("Insufficient text length to analyze words.")
             
             st.markdown("### Processed Pipeline Output Stream")
             st.dataframe(df[[selected_col, 'Inferred Sentiment']], use_container_width=True)
-            
-    else:
-        st.info("💡 Pro-Tip for Evaluation: You can either check the box above to use our quick test dataset, or upload your own structured table.")

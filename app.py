@@ -85,7 +85,7 @@ def extract_frequent_words(text_series, top_n=10):
 # 3. NAVIGATION SIDEBAR
 # ==========================================
 with st.sidebar:
-    st.image("https://icons8.com", width=80)
+    st.title("📊")
     st.title("VoxPopuli AI")
     st.caption("App Store Intelligence Analyzer")
     st.markdown("---")

@@ -13,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS injected for an elite, high-end design
+# Custom CSS injected for an elite design
 st.markdown("""
     <style>
     .stApp {
@@ -74,7 +74,13 @@ def analyze_sentiment(text):
         return "Neutral"
 
 def extract_frequent_words(text_series, top_n=10):
-    stop_words = {'the', 'a', 'and', 'is', 'in', 'it', 'of', 'to', 'for', 'with', 'on', 'this', 'app', 'my', 'that', 'you', 'are', 'i'}
+    # Added common domain terms like 'every', 'mode', 'app', 'just', 'more' to stop_words list
+    stop_words = {
+        'the', 'a', 'and', 'is', 'in', 'it', 'of', 'to', 'for', 'with', 'on', 'this', 
+        'app', 'my', 'that', 'you', 'are', 'i', 'every', 'mode', 'was', 'have', 'has', 
+        'but', 'so', 'not', 'can', 'very', 'just', 'when', 'more', 'about', 'get', 
+        'all', 'out', 'after', 'from', 'use', 'time', 'like', 'even', 'one', 'would'
+    }
     all_words = []
     for text in text_series.dropna():
         words = re.findall(r'\b\w+\b', str(text).lower())
@@ -106,7 +112,7 @@ if page == "🏠 Welcome & Overview":
     This application is designed as a scalable data tool for app developers to instantly clean, classify, and extract critical user-experience trends from marketplace feedback.
     
     ### 🛠️ Core Engineering Stack:
-    - **Development Environment:** Google Colab
+    - **Development Environment:** Google Colab / VS Code
     - **Data Infrastructure:** Python, Pandas, Regex Tokenization
     - **Visualization Suite:** Streamlit Native Layouts
     - **Deployment Platform:** GitHub & Streamlit Community Cloud
@@ -138,11 +144,11 @@ elif page == "🔍 Single Review Tester":
             result = analyze_sentiment(user_input)
             
             if result == "Positive":
-                st.success(f"🟢 **AI Classification Result:** ['Positive'] — (User Sentiment is Optimal)")
+                st.success("🟢 **AI Classification Result:** ['Positive'] — (User Sentiment is Optimal)")
             elif result == "Negative":
-                st.error(f"🔴 **AI Classification Result:** ['Negative'] — (User Sentiment Requires Engineering Attention)")
+                st.error("🔴 **AI Classification Result:** ['Negative'] — (User Sentiment Requires Engineering Attention)")
             else:
-                st.warning(f"🟡 **AI Classification Result:** ['Neutral'] — (Ambiguous or Balanced Sentiment)")
+                st.warning("🟡 **AI Classification Result:** ['Neutral'] — (Ambiguous or Balanced Sentiment)")
         else:
             st.info("Please write or paste a phrase first to analyze.")
 
@@ -155,21 +161,114 @@ elif page == "📂 Bulk Data Pipeline":
     
     df = None
     
-    # Use standard Streamlit interactive choice container
     data_source = st.radio(
         "Choose Data Submission Method:",
         ["⚡ Use Pre-Loaded Professor Sample Dataset", "📤 Upload Custom CSV File"]
     )
     
     if data_source == "⚡ Use Pre-Loaded Professor Sample Dataset":
+        # Expanded 100-review dataset for realistic distribution metrics
         sample_dict = {
             "Review": [
                 "The new interface is so smooth and the dark mode looks absolutely beautiful!",
                 "The app keeps crashing every time I try to open the login page. Please fix this bug.",
-                "The app was updated yesterday.",
+                "The app was updated yesterday to version 2.4.",
                 "I love how fast this app loads. It saves me so much time every day.",
                 "Too many annoying ads pop up every two seconds. This is a terrible user experience.",
-                "It works on my Samsung phone, but I haven't tried it on my tablet yet."
+                "It works on my Samsung phone, but I haven't tried it on my tablet yet.",
+                "Excellent tool for productivity. Highly recommended to everyone!",
+                "Horrible performance. It froze my entire phone during an export.",
+                "Customer support was very helpful and fixed my billing error fast.",
+                "The UI update feels confusing and some buttons are completely broken.",
+                "Great experience overall! The cloud sync feature is super fast.",
+                "Slow loading screens make this application almost unusable.",
+                "The latest patch solved all the performance glitches I had.",
+                "Why did you remove the option to customize notification sounds?",
+                "Fantastic service! I use this daily for all my business needs.",
+                "App crashes immediately after opening on iOS 17. Fix this issue!",
+                "Decent update, though the design could be slightly cleaner.",
+                "Love the dark theme support, but it drains battery power fast.",
+                "The best user experience I have had with any mobile application this year.",
+                "Payment gateway error appeared twice during checkout. Terrible service.",
+                "Quick and responsive user interface. Clean visual architecture.",
+                "Constant error codes popping up when trying to download files.",
+                "Average application. It gets the job done without extra features.",
+                "Wonderful feature set! The automated export tools are awesome.",
+                "Extremely poor optimization. Everything feels laggy and unresponsive.",
+                "The application was installed without any unexpected difficulties.",
+                "Smooth animations and zero lag during heavy data processing.",
+                "Buggy mess! Images do not load and text overlaps everywhere.",
+                "Very fast loading speeds even over slow mobile cellular connections.",
+                "Unable to reset my password because the confirmation link fails.",
+                "Perfect update! The engineers did a great job streamlining the workflow.",
+                "Unstable server connections constantly drop my saved progress.",
+                "Simple, intuitive, and effective tool for everyday user management.",
+                "The app freezes whenever I tap on the settings menu profile icon.",
+                "Love the user interface design choices. Clean, fast, and elegant.",
+                "Too expensive for the limited basic functionality provided.",
+                "The dark mode toggle button is hard to locate in settings.",
+                "Outstanding customer response team! They addressed my bug report fast.",
+                "Disappointing overall experience. Features listed in ads are missing.",
+                "Flawless performance after updating to the latest stable release.",
+                "Cannot register a new account because the validation field fails.",
+                "Great UI design! Everything is positioned right where it should be.",
+                "App keeps stopping unexpectedly whenever I attempt uploading images.",
+                "Smooth navigation layout with intuitive touch gestures.",
+                "Horrible memory optimization. It consumes too much device RAM.",
+                "The settings panel now includes language selection options.",
+                "Best productivity tool on the marketplace today!",
+                "Too many pop-ups asking for ratings and user reviews.",
+                "Fast, efficient, and reliable for high-volume data operations.",
+                "The recent patch caused severe battery drain problems.",
+                "Solid build quality and clean visual themes overall.",
+                "Search bar filter returns wrong search result entries.",
+                "I love the newly added offline mode capability!",
+                "The app refuses to sync data across desktop and mobile devices.",
+                "Super fast execution speeds when exporting large PDF files.",
+                "Frequent network error alerts render the application unusable.",
+                "A clean and modern interface that makes task management effortless.",
+                "Extremely broken functionality following the latest software patch.",
+                "Awesome dark mode features and great visual customizability.",
+                "The verification code email never arrives in my inbox.",
+                "Highly stable build. I have encountered zero crashes so far.",
+                "Very poor font legibility on smaller screen resolution sizes.",
+                "The application launch speed improved significantly with this release.",
+                "Constant crashes during file uploads make this frustrating.",
+                "Seamless integration with third-party cloud storage solutions.",
+                "The login page layout feels outdated compared to competitor apps.",
+                "Impressive data processing efficiency and minimal battery usage.",
+                "Terrible customer service response when reporting persistent bugs.",
+                "Intuitive dashboard design makes tracking key metrics simple.",
+                "The application takes too long to load initial home content.",
+                "Optimal performance delivered consistently across multiple updates.",
+                "Severe stability issues present after downloading the latest package.",
+                "Love the clean design and smooth transition animations!",
+                "System crashes every time I try opening transaction history.",
+                "Fast response times from technical support representatives.",
+                "The software feels sluggish when processing heavy file uploads.",
+                "Great addition of automated background synchronization features.",
+                "Broken navigation links make accessing account settings difficult.",
+                "Excellent execution speed and clean user experience throughout.",
+                "Unable to stream video content without continuous buffering issues.",
+                "The new theme colors look modern and visually pleasing.",
+                "Horrible usability following the controversial UI overhaul.",
+                "Fast startup times and stable network connection handling.",
+                "The file conversion utility repeatedly throws unexpected error codes.",
+                "Awesome application for managing daily schedules effectively.",
+                "Poor layout design causes accidental taps on ad banners.",
+                "Very smooth scrolling performance across long list views.",
+                "The application freezes whenever switching between active tabs.",
+                "Love the customizable dashboard widgets added in this update!",
+                "Frequent unexpected shutdowns spoil an otherwise decent app.",
+                "Exceptional performance stability under heavy usage conditions.",
+                "The profile edit form fails to save updated contact details.",
+                "Great performance improvements delivered in this version release.",
+                "Slow cloud synchronization causes duplicate record entries.",
+                "Wonderful user experience combined with helpful interactive tutorials.",
+                "The application consumes excessive background mobile data.",
+                "Fast, clean, and reliable service that never lets me down.",
+                "Terrible error handling during lost connection recovery.",
+                "Optimal user experience delivered with every major release!"
             ]
         }
         df = pd.DataFrame(sample_dict)
@@ -177,12 +276,11 @@ elif page == "📂 Bulk Data Pipeline":
         uploaded_file = st.file_uploader("Upload your app reviews dataset (Accepts standard .CSV formats)", type=["csv"])
         if uploaded_file is not None:
             try:
-                df = pd.read_csv(uploaded_file)
+                df = pd.read_csv(uploaded_file, encoding_errors="replace")
                 st.success("File uploaded successfully!")
             except Exception as e:
                 st.error(f"Error parsing uploaded file: {e}")
 
-    # Process block triggers smoothly as soon as a source is active
     if df is not None:
         text_columns = [col for col in df.columns if df[col].astype(str).str.len().mean() > 5]
         if not text_columns:
@@ -223,4 +321,5 @@ elif page == "📂 Bulk Data Pipeline":
                     st.info("Insufficient text length to analyze words.")
             
             st.markdown("### Processed Pipeline Output Stream")
-            st.dataframe(df[[selected_col, 'Inferred Sentiment']], use_container_width=True)
+            st.dataframe(df[[selected_col, 'Inferred Sentiment']])
+
